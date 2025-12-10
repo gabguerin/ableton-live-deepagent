@@ -1,0 +1,17 @@
+[project]
+name = "ableton-producer-agent"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "chainlit>=2.9.3",
+    "deepagents>=0.2.8",
+    "langchain>=1.1.2",
+    "langchain-community>=0.3.0",
+    "langchain-mcp-adapters>=0.1.14",
+    "langchain-openai>=1.1.0",
+    "loguru>=0.7.3",
+    "pydantic>=2.12.5",
+    "pydantic-settings>=2.12.0",
+]

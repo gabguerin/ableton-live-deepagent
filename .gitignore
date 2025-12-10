@@ -1,0 +1,12 @@
+**/.chainlit
+
+**/.claude
+
+**/.venv
+**/.git
+
+
+**/.env
+
+
+**/*.pyc
