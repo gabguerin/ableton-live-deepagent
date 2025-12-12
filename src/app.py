@@ -5,12 +5,10 @@ the multi-agent system (Router, Producer, Assistant) to provide an intelligent
 music production assistant.
 """
 
-import os
-
 import chainlit as cl
 from loguru import logger
 
-from src.agents.producer_agent import create_producer_agent
+from src.agent import create_producer_agent
 
 
 @cl.on_chat_start
@@ -49,6 +47,7 @@ async def on_message(message: cl.Message):
 
     with cl.Step(name="AbletonMCP", type="run", language="json") as tool_calls:
         plan_message = cl.Message(content="Gathering plan...")
+        answer_message = cl.Message(content="")
         await plan_message.send()
         async for _, graph_step in producer_agent.astream(
             {"messages": message.content}, stream_mode="updates", subgraphs=True
@@ -63,27 +62,18 @@ async def on_message(message: cl.Message):
                     if "todos" in update and update.get("todos"):
                         logger.debug("Updating plan message with new todos.")
                         plan_md = format_todos_to_markdown(todos=update["todos"])
-                        await plan_message.remove()
-                        plan_message = cl.Message(content=plan_md)
-                        await plan_message.send()
+                        plan_message.content = ""
+                        await plan_message.update()
+                        await plan_message.stream_token(plan_md)
 
                     if "messages" in update and update.get("messages"):
                         logger.debug("Streaming final message update.")
                         last_msg = update["messages"][-1]
                         if last_msg.content:
                             await tool_calls.stream_token(last_msg.content + "\n")
-            await tool_calls.update()
-
-
-if __name__ == "__main__":
-    if not os.getenv("OPENAI_API_KEY"):
-        print(
-            "⚠️  Warning: OPENAI_API_KEY not set. Please set it before running the app."
-        )
-        print("   export OPENAI_API_KEY='your-api-key'")
-
-    if not os.getenv("ANTHROPIC_API_KEY"):
-        print("ℹ️  Note: ANTHROPIC_API_KEY not set (optional, for Claude models)")
-
-    print("🎵 Starting Ableton Producer Agent...")
-    print("📝 Open your browser to http://localhost:8000 when the server starts")
+                            await tool_calls.update()
+                case "messages":
+                    if update.get("content"):
+                        logger.debug("Streaming final message update.")
+                        await answer_message.stream_token(update["content"] + "\n")
+                        await answer_message.update()
