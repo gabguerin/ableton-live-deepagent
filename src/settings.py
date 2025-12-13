@@ -15,8 +15,6 @@ class Settings(BaseSettings):
     anthropic_api_key: str | None = None
     gemini_api_key: str | None = None
     model_name: str
-    hooktheory_username: str
-    hooktheory_password: str
 
     @model_validator(mode="after")
     def validate_openai_api_key(self) -> "Settings":
