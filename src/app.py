@@ -8,7 +8,7 @@ music production assistant.
 import chainlit as cl
 from loguru import logger
 
-from src.agents.producer_agent import create_producer_agent
+from src.agents.producer import create_producer_agent
 
 
 @cl.on_chat_start
