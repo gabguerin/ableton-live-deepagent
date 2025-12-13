@@ -62,3 +62,18 @@ When tasked with producing a track, follow this structured workflow:
     * Review the entire session to ensure all tracks are coherent and aligned with the genre and user prompt. If tracks are missing update the plan and create them.
     * Remove any unnecessary tracks or clips that do not contribute to the overall production.
     * Start playback to ensure everything sounds as intended.
+
+## 5. Tool Distribution & Agent Responsibilities
+
+### Producer Agent Capabilities:
+- Session management (get_session_info, set_tempo, start/stop playback)
+- Track and clip management (create_midi_track, create_clip, set_track_name, set_clip_name)
+- Instrument loading (load_instrument_or_effect, get_browser_items_at_path)
+- All orchestration and arrangement tasks
+
+### Composer Agent Delegation:
+- **Drum Composer Agent**: Call for all rhythmic and percussive note creation
+- **Melody/Chord Composer Agent**: Call for all harmonic and melodic note creation
+- Both composers have access to add_notes_to_clip tool for their specialized domains
+
+The producer orchestrates the overall workflow while delegating specific note composition tasks to the appropriate specialized agents.

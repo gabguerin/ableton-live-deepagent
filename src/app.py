@@ -8,7 +8,7 @@ music production assistant.
 import chainlit as cl
 from loguru import logger
 
-from src.agent import create_producer_agent
+from src.agents.producer_agent import create_producer_agent
 
 
 @cl.on_chat_start
@@ -25,9 +25,9 @@ def format_todos_to_markdown(todos):
     md_lines = ["### Current Plan"]
     status_map = {
         "pending": "⚪",
-        "in_progress": "Hz",  # Using a spinner or distinct icon
+        "in_progress": "⏳",
         "completed": "✅",
-        "failed": "XY",
+        "failed": "❌",
     }
 
     for todo in todos:
@@ -52,7 +52,7 @@ async def on_message(message: cl.Message):
         async for _, graph_step in producer_agent.astream(
             {"messages": message.content}, stream_mode="updates", subgraphs=True
         ):
-            node_name, update = next(iter(graph_step.items()))
+            node_name, update = next(iter(graph_step.items()))  # type: ignore
             if update is None:
                 continue
 
