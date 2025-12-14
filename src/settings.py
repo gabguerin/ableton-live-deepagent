@@ -1,5 +1,6 @@
 """Settings for the Ableton Producer Agent project."""
 
+import os
 from functools import lru_cache
 from typing import Literal
 
@@ -10,10 +11,10 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     """Application settings."""
 
-    llm_provider: Literal["openai", "anthropic", "gemini"]
+    llm_provider: Literal["openai", "anthropic", "google"]
     openai_api_key: str | None = None
     anthropic_api_key: str | None = None
-    gemini_api_key: str | None = None
+    google_api_key: str | None = None
     model_name: str
 
     @model_validator(mode="after")
@@ -27,9 +28,9 @@ class Settings(BaseSettings):
             raise ValueError(
                 "ANTHROPIC_API_KEY must be set when LLM_PROVIDER is 'anthropic'."
             )
-        if self.llm_provider == "gemini" and not self.gemini_api_key:
+        if self.llm_provider == "google" and not self.google_api_key:
             raise ValueError(
-                "GEMINI_API_KEY must be set when LLM_PROVIDER is 'gemini'."
+                "GOOGLE_API_KEY must be set when LLM_PROVIDER is 'google'."
             )
         return self
 

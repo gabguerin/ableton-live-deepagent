@@ -11,6 +11,7 @@ deep agents framework. The agent provides:
 """
 
 from deepagents import CompiledSubAgent, SubAgent, create_deep_agent
+from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.graph.state import CompiledStateGraph
 
 from src.ableton_tools import load_ableton_tools
@@ -32,6 +33,7 @@ async def create_producer_agent() -> CompiledStateGraph:
         system_prompt=system_prompt,
         tools=tools,
         subagents=music_band,
+        checkpointer=InMemorySaver(),
     )
 
 

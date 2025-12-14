@@ -8,6 +8,7 @@ import os
 
 from deepagents import CompiledSubAgent, SubAgent
 from langchain.agents import create_agent
+from langgraph.checkpoint.memory import InMemorySaver
 from openai import BaseModel
 
 from src.ableton_tools import load_ableton_tools
@@ -38,6 +39,7 @@ async def create_musician(
         model=SETTINGS.model_name,
         system_prompt=system_prompt,
         tools=tools,
+        checkpointer=InMemorySaver(),
     )
 
     return CompiledSubAgent(

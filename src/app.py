@@ -6,6 +6,7 @@ music production assistant.
 """
 
 import chainlit as cl
+from langchain.messages import AIMessageChunk
 from loguru import logger
 
 from src.agents.producer import create_producer_agent
@@ -46,34 +47,33 @@ async def on_message(message: cl.Message):
     producer_agent = await create_producer_agent()
 
     with cl.Step(name="AbletonMCP", type="run", language="json") as tool_calls:
-        plan_message = cl.Message(content="Gathering plan...")
         answer_message = cl.Message(content="")
-        await plan_message.send()
-        async for _, graph_step in producer_agent.astream(
-            {"messages": message.content}, stream_mode="updates", subgraphs=True
+        await answer_message.send()
+        async for event_type, event_value in producer_agent.astream(
+            {"messages": message.content},
+            config={"configurable": {"thread_id": cl.context.session.id}},
+            stream_mode=["updates", "messages"],
         ):
-            node_name, update = next(iter(graph_step.items()))  # type: ignore
-            if update is None:
-                continue
+            if event_type == "messages":
+                chunk = event_value[0]
+                if isinstance(chunk, AIMessageChunk):
+                    await answer_message.stream_token(chunk.content)  # type: ignore[arg]
+                    await answer_message.update()
 
-            logger.info(f"Update for node {node_name}: {update}")
-            match node_name:
-                case "tools":
-                    if "todos" in update and update.get("todos"):
-                        logger.debug("Updating plan message with new todos.")
-                        plan_md = format_todos_to_markdown(todos=update["todos"])
-                        plan_message.content = ""
-                        await plan_message.update()
-                        await plan_message.stream_token(plan_md)
+            elif event_type == "updates":
+                node_name, update = next(iter(event_value.items()))  # type: ignore[arg]
 
-                    if "messages" in update and update.get("messages"):
-                        logger.debug("Streaming final message update.")
-                        last_msg = update["messages"][-1]
-                        if last_msg.content:
-                            await tool_calls.stream_token(last_msg.content + "\n")
-                            await tool_calls.update()
-                case "messages":
-                    if update.get("content"):
-                        logger.debug("Streaming final message update.")
-                        await answer_message.stream_token(update["content"] + "\n")
-                        await answer_message.update()
+                logger.info(f"Update for node {node_name}: {update}")
+                match node_name:
+                    case "tools":
+                        if "messages" in update and update.get("messages"):
+                            last_msg = update["messages"][-1]
+                            if last_msg.content:
+                                await tool_calls.stream_token(last_msg.content + "\n")
+
+                        # if "todos" in update and update.get("todos"):
+                        #     plan_md = format_todos_to_markdown(todos=update["todos"])
+                        #     plan_message = cl.Message(content=plan_md)
+                        #     await plan_message.send()
+
+                await tool_calls.update()

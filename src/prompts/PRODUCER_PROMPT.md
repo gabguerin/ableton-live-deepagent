@@ -172,12 +172,10 @@ When tasked with producing a track, follow this structured workflow:
     * Create each MIDI track at the appropriate index (0-based).
     * Name each track appropriately (e.g., "Kick", "808 Bass", "Electric Piano").
 4.  **Ableton Browser Navigation & Sound Selection**
-    * **Explore Browser Structure:** Start by getting the browser tree to understand available categories
+    * **Explore Browser Structure:** Start by getting the top-level categories in the Ableton browser.
     * **Navigate to Appropriate Folders:** Browse systematically through relevant categories:
-      - **Drums:** Navigate to "Drums" folder, then to genre-specific subfolders or drum kit types
-      - **Bass Instruments:** Look in "Bass" or instrument-specific bass folders
-      - **Piano/Keys:** Browse "Instruments" for pianos, keyboards, synths
-      - **Guitar:** Find guitar sounds in appropriate instrument categories
+      - If an item is a folder, drill down further.
+      - If an item is a preset or instrument, consider it for loading.
     * **Smart Loading Strategy:**
       - **For Drum Tracks:** Use drum racks, then load specific drum kits from browser paths
       - **For Melodic Instruments:** Load individual instruments using appropriate URIs

@@ -43,6 +43,9 @@ async def load_ableton_tools(
         if tool.name == "add_notes_to_clip":
             tool.args_schema = AddNotesArgs
 
+        if tool.name == "get_browser_tree":
+            tool.description = "Get the top-level categories in the Ableton browser."
+
         tools.append(tool)
 
     return tools
