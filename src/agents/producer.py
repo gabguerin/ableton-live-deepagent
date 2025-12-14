@@ -16,7 +16,7 @@ from langgraph.graph.state import CompiledStateGraph
 
 from src.ableton_tools import load_ableton_tools
 from src.agents.musician import MusicianInfo, create_musician
-from src.settings import SETTINGS
+from src.llm_factory import create_llm
 
 
 async def create_producer_agent() -> CompiledStateGraph:
@@ -29,7 +29,7 @@ async def create_producer_agent() -> CompiledStateGraph:
     music_band = await _create_music_band()
 
     return create_deep_agent(
-        model=SETTINGS.model_name,
+        model=create_llm(),
         system_prompt=system_prompt,
         tools=tools,
         subagents=music_band,

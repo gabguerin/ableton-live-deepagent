@@ -9,10 +9,10 @@ import os
 from deepagents import CompiledSubAgent, SubAgent
 from langchain.agents import create_agent
 from langgraph.checkpoint.memory import InMemorySaver
-from openai import BaseModel
+from pydantic import BaseModel
 
 from src.ableton_tools import load_ableton_tools
-from src.settings import SETTINGS
+from src.llm_factory import create_llm
 
 
 class MusicianInfo(BaseModel):
@@ -36,7 +36,7 @@ async def create_musician(
     tools = await load_ableton_tools(include=["add_notes_to_clip"])
 
     agent = create_agent(
-        model=SETTINGS.model_name,
+        model=create_llm(),
         system_prompt=system_prompt,
         tools=tools,
         checkpointer=InMemorySaver(),
