@@ -11,6 +11,13 @@ from loguru import logger
 
 from src.agents.producer import create_producer_agent
 
+STATUS_ICONS = {
+    "pending": "⏳",
+    "in_progress": "🔄",
+    "completed": "✅",
+    "failed": "❌",
+}
+
 
 @cl.on_chat_start
 async def on_chat_start():
@@ -27,41 +34,51 @@ async def on_message(message: cl.Message):
     """Handle incoming user messages."""
     producer_agent = await create_producer_agent()
 
-    with cl.Step(name="AbletonMCP", type="run", language="json") as tool_steps:
-        answer_message = cl.Message(content="")
-        await answer_message.send()
-        async for event_type, event_value in producer_agent.astream(
-            {"messages": message.content},
-            config={"configurable": {"thread_id": cl.context.session.id}},
-            stream_mode=["updates", "messages"],
-        ):
-            if event_type == "messages":
-                chunk, _ = event_value
-                if isinstance(chunk, AIMessageChunk):
-                    if isinstance(chunk.content, str):
-                        await answer_message.stream_token(chunk.content)
-                        await answer_message.update()
-                    elif isinstance(chunk.content, list):
-                        for item in chunk.content:
-                            if item.get("type") == "text":
-                                await answer_message.stream_token(item.get("text", ""))
-                                await answer_message.update()
+    with cl.Step(name="Todo List", type="run", language="json") as todo_list:
+        with cl.Step(name="AbletonMCP", type="run", language="json") as tool_steps:
+            answer_message = cl.Message(content="")
+            await answer_message.send()
+            async for event_type, event_value in producer_agent.astream(
+                {"messages": message.content},
+                config={"configurable": {"thread_id": cl.context.session.id}},
+                stream_mode=["updates", "messages"],
+            ):
+                if event_type == "messages":
+                    chunk, _ = event_value
+                    if isinstance(chunk, AIMessageChunk):
+                        if isinstance(chunk.content, str):
+                            await answer_message.stream_token(chunk.content)
+                            await answer_message.update()
+                        elif isinstance(chunk.content, list):
+                            for item in chunk.content:
+                                if item.get("type") == "text":
+                                    await answer_message.stream_token(
+                                        item.get("text", "")
+                                    )
+                                    await answer_message.update()
 
-            if event_type == "updates":
-                node_name, update = next(iter(event_value.items()))  # type: ignore[arg]
+                if event_type == "updates":
+                    node_name, update = next(iter(event_value.items()))  # type: ignore[arg]
 
-                logger.info(f"Update for node {node_name}: {update}")
-                match node_name:
-                    case "tools":
-                        if "messages" in update and update.get("messages"):
-                            last_msg = update["messages"][-1]
-                            if last_msg.content:
-                                await tool_steps.stream_token(last_msg.content + "\n")
+                    logger.info(f"Update for node {node_name}: {update}")
+                    match node_name:
+                        case "tools":
+                            if "todos" in update and update.get("todos"):
+                                todo_content = "📋 Current Todo List:\n\n"
+                                for todo in update["todos"]:
+                                    status_icon = STATUS_ICONS[
+                                        todo.get("status", "pending")
+                                    ]
+                                    content = todo.get("content", "No description")
+                                    todo_content += f"{status_icon} {content}\n"
+                                todo_list.output = todo_content
+                                await todo_list.update()
 
-                        if "todos" in update and update.get("todos"):
-                            for todo in update["todos"]:
-                                await tool_steps.stream_token(
-                                    f"{todo.get('content')}: {todo.get('status')}\n"
-                                )
+                            elif "messages" in update and update.get("messages"):
+                                last_msg = update["messages"][-1]
+                                if last_msg.content:
+                                    await tool_steps.stream_token(
+                                        last_msg.content + "\n"
+                                    )
 
-                await tool_steps.update()
+                    await tool_steps.update()
