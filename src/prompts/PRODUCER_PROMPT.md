@@ -107,6 +107,8 @@ Call the **Composer Advisor** to obtain:
 * Confirm instrument presence before proceeding
 * Do not load instruments for tracks that do not exist
 
+❗ Never load items that are folders, even if the name matches the track role
+
 ---
 
 ### 6. CLIP CREATION
