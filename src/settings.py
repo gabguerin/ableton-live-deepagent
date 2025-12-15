@@ -3,7 +3,7 @@
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import model_validator
+from pydantic import computed_field, model_validator
 from pydantic_settings import BaseSettings
 
 
@@ -15,8 +15,15 @@ class Settings(BaseSettings):
     anthropic_api_key: str | None = None
     google_api_key: str | None = None
     mistral_api_key: str | None = None
+
     model_name: str
     model_temperature: float
+
+    @computed_field
+    @property
+    def model(self) -> str:
+        """Construct full model identifier based on provider and model name."""
+        return f"{self.llm_provider}:{self.model_name}"
 
     @model_validator(mode="after")
     def validate_api_keys(self) -> "Settings":

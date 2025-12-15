@@ -15,30 +15,11 @@ from src.agents.producer import create_producer_agent
 @cl.on_chat_start
 async def on_chat_start():
     """Initialize a new chat session."""
-    welcome_message = """🎵 **Welcome to the Ableton Producer Agent!** 🎵
+    welcome_message = """## Welcome to the Ableton Producer Agent! 💃🕺 
 
 Ready to make some music? 🎶"""
 
     await cl.Message(content=welcome_message).send()
-
-
-def format_todos_to_markdown(todos):
-    md_lines = ["### Current Plan"]
-    status_map = {
-        "pending": "⚪",
-        "in_progress": "⏳",
-        "completed": "✅",
-        "failed": "❌",
-    }
-
-    for todo in todos:
-        icon = status_map.get(todo.get("status"), "⚪")
-        content = todo.get("content", "")
-        if todo.get("status") == "in_progress":
-            content = f"**{content}**"
-        md_lines.append(f"{icon} {content}")
-
-    return "\n".join(md_lines)
 
 
 @cl.on_message
@@ -46,7 +27,7 @@ async def on_message(message: cl.Message):
     """Handle incoming user messages."""
     producer_agent = await create_producer_agent()
 
-    with cl.Step(name="AbletonMCP", type="run", language="json") as tool_calls:
+    with cl.Step(name="AbletonMCP", type="run", language="json") as tool_steps:
         answer_message = cl.Message(content="")
         await answer_message.send()
         async for event_type, event_value in producer_agent.astream(
@@ -55,12 +36,18 @@ async def on_message(message: cl.Message):
             stream_mode=["updates", "messages"],
         ):
             if event_type == "messages":
-                chunk = event_value[0]
+                chunk, _ = event_value
                 if isinstance(chunk, AIMessageChunk):
-                    await answer_message.stream_token(chunk.content)  # type: ignore[arg]
-                    await answer_message.update()
+                    if isinstance(chunk.content, str):
+                        await answer_message.stream_token(chunk.content)
+                        await answer_message.update()
+                    elif isinstance(chunk.content, list):
+                        for item in chunk.content:
+                            if item.get("type") == "text":
+                                await answer_message.stream_token(item.get("text", ""))
+                                await answer_message.update()
 
-            elif event_type == "updates":
+            if event_type == "updates":
                 node_name, update = next(iter(event_value.items()))  # type: ignore[arg]
 
                 logger.info(f"Update for node {node_name}: {update}")
@@ -69,11 +56,12 @@ async def on_message(message: cl.Message):
                         if "messages" in update and update.get("messages"):
                             last_msg = update["messages"][-1]
                             if last_msg.content:
-                                await tool_calls.stream_token(last_msg.content + "\n")
+                                await tool_steps.stream_token(last_msg.content + "\n")
 
-                        # if "todos" in update and update.get("todos"):
-                        #     plan_md = format_todos_to_markdown(todos=update["todos"])
-                        #     plan_message = cl.Message(content=plan_md)
-                        #     await plan_message.send()
+                        if "todos" in update and update.get("todos"):
+                            for todo in update["todos"]:
+                                await tool_steps.stream_token(
+                                    f"{todo.get('content')}: {todo.get('status')}\n"
+                                )
 
-                await tool_calls.update()
+                await tool_steps.update()
