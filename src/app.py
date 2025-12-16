@@ -9,7 +9,7 @@ import os
 import uuid
 
 import chainlit as cl
-from langchain.messages import AIMessageChunk
+from langchain.messages import AIMessageChunk, HumanMessage
 from loguru import logger
 
 from src.agents.producer import create_producer_agent
@@ -21,6 +21,8 @@ STATUS_ICONS = {
     "failed": "❌",
 }
 
+os.environ["THREAD_ID"] = uuid.uuid4().hex
+
 
 @cl.on_chat_start
 async def on_chat_start():
@@ -31,19 +33,20 @@ async def on_chat_start():
 
     await cl.Message(content=welcome_message).send()
 
-    os.environ["THREAD_ID"] = uuid.uuid4().hex
+    logger.info(f"Started new chat session with THREAD_ID: {os.environ['THREAD_ID']}")
 
 
 @cl.on_message
 async def on_message(message: cl.Message):
     """Handle incoming user messages."""
     producer_agent = await create_producer_agent()
+    logger.info(f"Started new chat session with THREAD_ID: {os.environ['THREAD_ID']}")
 
     with cl.Step(name="AbletonMCP", type="run", language="json") as tool_steps:
         answer_message = cl.Message(content="")
         await answer_message.send()
         async for event_type, event_value in producer_agent.astream(
-            {"messages": message.content},
+            {"messages": [HumanMessage(content=message.content)]},
             config={"configurable": {"thread_id": os.environ["THREAD_ID"]}},
             stream_mode=["updates", "messages"],
         ):
