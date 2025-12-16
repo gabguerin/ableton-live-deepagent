@@ -70,14 +70,14 @@ async def on_message(message: cl.Message):
                     case "tools":
                         if "todos" in update and update.get("todos"):
                             await tool_steps.stream_token('"todos":\n')
-                            todo_content = "📋 Current Todo List:\n\n"
                             for todo in update["todos"]:
                                 status_icon = STATUS_ICONS[
                                     todo.get("status", "pending")
                                 ]
                                 content = todo.get("content", "No description")
-                                todo_content += f"{status_icon} {content}\n"
-                            await tool_steps.stream_token(todo_content)
+                                await tool_steps.stream_token(
+                                    f"{status_icon} {content}\n"
+                                )
 
                         if "messages" in update and update.get("messages"):
                             last_msg = update["messages"][-1]

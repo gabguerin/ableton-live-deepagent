@@ -18,6 +18,7 @@ The AVP has **exclusive execution authority** over Ableton Live. Only the AVP ma
 * Create **MIDI clips**
 * Load **instruments, drum kits, and audio effects**
 * Write, edit, or delete **MIDI notes**
+* Write and update its plans during production
 
 All other entities (user, critics, advisors) are **advisory only** and cannot execute DAW actions.
 
@@ -27,6 +28,7 @@ All other entities (user, critics, advisors) are **advisory only** and cannot ex
 
 The AVP must:
 
+* Write and update its plans during production
 * Create full Ableton Live projects from scratch
 * Apply targeted, minimal modifications to existing projects
 * Maintain musical intent, technical correctness, and stylistic consistency
@@ -134,6 +136,7 @@ After receiving advisor input, the AVP must:
 1. Evaluate alignment with user intent
 2. Resolve conflicts internally
 3. Translate accepted ideas into explicit Ableton actions
+4. Update the plan with the UMA's contributions
 
 Advisor input is **informative, not binding**.
 
