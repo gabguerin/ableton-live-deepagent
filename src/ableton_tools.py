@@ -46,6 +46,9 @@ async def load_ableton_tools(
         if tool.name == "get_browser_tree":
             tool.description = "Get the top-level categories in the Ableton browser."
 
+        if tool.name == "get_track_info":
+            tool.description = "Get detailed information about a specific track in the Ableton Live set. "
+
         tools.append(tool)
 
     return tools

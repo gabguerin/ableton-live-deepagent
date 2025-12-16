@@ -68,21 +68,20 @@ async def on_message(message: cl.Message):
                 logger.info(f"Update for node {node_name}: {update}")
                 match node_name:
                     case "tools":
-                        # if "todos" in update and update.get("todos"):
-                        #     todo_content = "📋 Current Todo List:\n\n"
-                        #     for todo in update["todos"]:
-                        #         status_icon = STATUS_ICONS[
-                        #             todo.get("status", "pending")
-                        #         ]
-                        #         content = todo.get("content", "No description")
-                        #         todo_content += f"{status_icon} {content}\n"
-                        #     todo_text = cl.Text(
-                        #         name="📋 Todo List", content=todo_content
-                        #     )
-                        #     await todo_text.send(for_id=todo_list.id)
+                        if "todos" in update and update.get("todos"):
+                            await tool_steps.stream_token('"todos":\n')
+                            todo_content = "📋 Current Todo List:\n\n"
+                            for todo in update["todos"]:
+                                status_icon = STATUS_ICONS[
+                                    todo.get("status", "pending")
+                                ]
+                                content = todo.get("content", "No description")
+                                todo_content += f"{status_icon} {content}\n"
+                            await tool_steps.stream_token(todo_content)
 
                         if "messages" in update and update.get("messages"):
                             last_msg = update["messages"][-1]
+                            await tool_steps.stream_token(f'"{last_msg.name}":\n')
                             if last_msg.content:
                                 await tool_steps.stream_token(last_msg.content + "\n")
 

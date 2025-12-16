@@ -33,4 +33,5 @@ async def create_advisor(
         "description": advisor_info.description,
         "system_prompt": system_prompt,
         "tools": [],
+        "model": "gpt-5-nano",
     }

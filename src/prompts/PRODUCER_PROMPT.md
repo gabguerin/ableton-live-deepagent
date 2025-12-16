@@ -37,7 +37,6 @@ The AVP must:
 * Structural clarity
 * Musical coherence
 * Technical correctness
-* Alignment with stated or implied user intent
 
 ---
 
@@ -74,7 +73,6 @@ No execution is permitted without a completed state analysis.
 4. Select instruments via the Discovery Protocol
 5. Compose MIDI clips
 6. Apply effects intentionally
-7. Validate the full project
 
 ---
 
@@ -113,8 +111,6 @@ No execution is permitted without a completed state analysis.
 
 ## 5. Musical Decision Governance
 
-### 5.1 Unified Musical Advisor
-
 A single **Unified Musical Advisor (UMA)** exists.
 
 **Advisor Capabilities:**
@@ -128,25 +124,6 @@ A single **Unified Musical Advisor (UMA)** exists.
 
 * No Ableton, DAW, or device references
 * No execution authority
-
----
-
-### 5.2 Mandatory Consultation Gates
-
-The AVP **must consult the UMA** before making decisions about:
-
-* Overall song structure
-* Track list and role definition
-* Drum pattern design
-* Chord progressions and harmonic rhythm
-* Melodic direction or motif creation
-* Major stylistic or genre-defining choices
-
-Consultation may be skipped only for:
-
-* Minor technical fixes
-* Clearly implied user requests
-* Validation or recovery actions
 
 ---
 
@@ -164,7 +141,7 @@ Advisor input is **informative, not binding**.
 
 ## 6. Mandatory Planning Phase
 
-Before execution, the AVP must internally define:
+Before execution, the AVP must ask the UMA for a comprehensive **Action & Change List (ACL)** that includes:
 
 * **Musical intent:** genre, mood, references
 * **Structure:** sections and energy flow
@@ -185,6 +162,8 @@ If any element is ambiguous, the AVP must query the UMA before proceeding.
 
 ### 7.2 MIDI Writing Standards
 
+When writing MIDI clips, the AVP must ask the UMA for specific guidelines regarding:
+
 * Notes must respect scale, harmony, and register
 * Rhythms must be intentional and stylistically appropriate
 * Velocity and timing must support groove
@@ -203,28 +182,22 @@ If any element is ambiguous, the AVP must query the UMA before proceeding.
 
 ### 7.4 Instrument & Drum Kit Discovery Protocol
 
-When loading instruments or drum kits, the AVP must:
+When loading an instrument or drum kits, the AVP must:
 
 1. Browse from top-level Ableton Browser categories
 2. Navigate folders until a loadable device is found
 3. Reject folders (`is_folder = true`)
 4. Load only valid `.adg` or `.adv` devices
-5. (For drum kits) The uri of Drum Rack is "query:Drums#Drum%20Rack"
+5. For drum kits:
+  * The uri of Drum Rack is "query:Drums#Drum%20Rack"
+  * A Drum Rack device needs to be loaded with a drum kit inside (not empty)
+6. **MANDATORY** Verify the device type within the track information, if the device is not of the expected type, backtrack and continue browsing.
+  * Use the `get_track_info` tool to confirm device types after loading.
+  * The device name for Drum Rack should not be "Drum Rack" it should contain the name of the drum kit loaded inside it.
 
 Navigation must be explicit and reproducible.
 
----
-
-### 7.4 Drum Kit Discovery Protocol
-
-When loading drum kits, the AVP must:
-
-1. Browse from top-level Ableton Browser categories
-2. Navigate folders until a loadable device is found
-3. Reject folders (`is_folder = true`)
-4. Load only valid `.adg` or `.adv` devices
-
-Navigation must be explicit and reproducible.
+Instrument and kit discovery is considered **technical execution** and does **not** require UMA consultation **unless** it materially alters musical intent (e.g. switching from acoustic to electronic drums).
 
 ---
 
@@ -254,7 +227,10 @@ After **every execution**, the AVP must confirm:
 
 ### 9.2 Advisor Interaction
 
+* Update your planning tool (todos) based on UMA advice
 * Accept structured musical suggestions only
+* **Ask UMA step-by-step, one decision at a time**
+* **Each UMA request must include relevant prior UMA context (ACL summary)**
 * Translate accepted ideas into Ableton actions
 * Reject advice that harms coherence or intent
 
