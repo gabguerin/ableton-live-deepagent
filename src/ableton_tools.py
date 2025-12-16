@@ -44,16 +44,7 @@ async def load_ableton_tools(
             tool.args_schema = AddNotesArgs
 
         if tool.name == "get_browser_tree":
-            continue
-
-        if tool.name == "get_browser_items_at_path":
-            tool.description = (
-                "Get items (folders, samples, presets, plugins) at a given path in the Ableton browser.\n"
-                "The path needs to start from one of the root folders in the Ableton browser.\n\n"
-                "Parameters:\n"
-                "    - path (str): The path within the Ableton browser to list items from.\n"
-                "      Instruments, Sounds, Drums, Audio_effects, MIDI_effects, Clips, Current_project, Max_for_live, Packs, Plugins, Samples, User_library"
-            )
+            tool.description = "Get the top-level categories in the Ableton browser."
 
         tools.append(tool)
 

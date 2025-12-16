@@ -40,35 +40,11 @@ async def create_producer_agent() -> CompiledStateGraph:
 async def _create_advisors() -> list[CompiledSubAgent | SubAgent]:
     advisors = [
         AdvisorInfo(
-            name="composer",
-            prompt_file="src/prompts/COMPOSER_ADVISOR_PROMPT.md",
+            name="musical_advisor",
+            prompt_file="src/prompts/MUSICAL_ADVISOR_PROMPT.md",
             description=(
-                "Agent specialized in overall song structure and arrangement. "
-                "Decides on which tracks to create and their roles across all genres."
-            ),
-        ),
-        AdvisorInfo(
-            name="drums",
-            prompt_file="src/prompts/DRUMS_ADVISOR_PROMPT.md",
-            description=(
-                "Agent specialized in drum programming and rhythmic patterns. "
-                "Creates kick, snare, hi-hat, and percussion patterns across all genres."
-            ),
-        ),
-        AdvisorInfo(
-            name="harmony",
-            prompt_file="src/prompts/HARMONY_ADVISOR_PROMPT.md",
-            description=(
-                "Agent specialized in harmonic content and foundation. "
-                "Creates chord progressions, bass lines, and harmonic support across all genres."
-            ),
-        ),
-        AdvisorInfo(
-            name="leads",
-            prompt_file="src/prompts/LEADS_ADVISOR_PROMPT.md",
-            description=(
-                "Agent specialized in melodic leads and featured parts. "
-                "Creates lead lines, solos, and melodic content across all genres."
+                "Agent specialized in any musical aspect. "
+                "Can provide comprehensive musical guidance about tracks composition, drum patterns, chord progressions, and more."
             ),
         ),
     ]
