@@ -12,16 +12,16 @@ An intelligent music production assistant using LangChain v1+ and deepagents for
 ## Quick Start
 
 ### Prerequisites
-- Ableton Live (with ableton-mcp package installed)
-- Python 3.11+
-- uv package manager
+- [Ableton Live](https://www.ableton.com/fr/live/) installed
+- [Ableton-MCP](https://github.com/ahujasid/ableton-mcp/tree/main) set up and running
+- [uv package manager](https://docs.astral.sh/uv/getting-started/installation/)
 
 ### Installation
 
 1. Clone and install dependencies:
 ```bash
-git clone <repository-url>
-cd ableton-producer-agent
+git clone git@github.com:gabguerin/ableton-live-deepagent.git
+cd ableton-live-deepagent
 make install
 ```
 
