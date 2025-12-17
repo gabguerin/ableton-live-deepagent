@@ -16,14 +16,27 @@ class Settings(BaseSettings):
     google_api_key: str | None = None
     mistral_api_key: str | None = None
 
-    model_name: str
+    producer_model_name: str
+    composer_model_name: str
     model_temperature: float
 
     @computed_field
     @property
+    def producer_model(self) -> str:
+        """Construct full model identifier for producer agent."""
+        return f"{self.llm_provider}:{self.producer_model_name}"
+
+    @computed_field
+    @property
+    def composer_model(self) -> str:
+        """Construct full model identifier for composer agent."""
+        return f"{self.llm_provider}:{self.composer_model_name}"
+
+    @computed_field
+    @property
     def model(self) -> str:
-        """Construct full model identifier based on provider and model name."""
-        return f"{self.llm_provider}:{self.model_name}"
+        """Backward compatibility: returns producer model."""
+        return self.producer_model
 
     @model_validator(mode="after")
     def validate_api_keys(self) -> "Settings":

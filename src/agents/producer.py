@@ -10,44 +10,28 @@ deep agents framework. The agent provides:
 - Genre-aware dynamic advisor agent selection
 """
 
-from deepagents import CompiledSubAgent, SubAgent, create_deep_agent
+from deepagents import create_deep_agent
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.graph.state import CompiledStateGraph
 
 from src.ableton_tools import load_ableton_tools
-from src.agents.composer import ComposerInfo, create_composer
+from src.agents.composer import create_composer
 from src.settings import SETTINGS
 
 
 async def create_producer_agent(checkpointer: InMemorySaver) -> CompiledStateGraph:
     """Create and initialize a Producer Agent with dynamic advisor subagents."""
-    with open("src/prompts/PRODUCER_PROMPT.md", "r") as f:
+    with open("src/prompts/PRODUCER.md", "r") as f:
         system_prompt = f.read()
 
     tools = await load_ableton_tools()
 
-    advisors = await _create_subagents()
+    composer = await create_composer()
 
     return create_deep_agent(
-        model=SETTINGS.model,
+        model=SETTINGS.producer_model,
         system_prompt=system_prompt,
         tools=tools,
-        subagents=advisors,
+        subagents=[composer],
         checkpointer=checkpointer,
     )
-
-
-async def _create_subagents() -> list[CompiledSubAgent | SubAgent]:
-    """Create dynamic subagents for the Producer Agent."""
-    return [
-        await create_composer(
-            composer_info=ComposerInfo(
-                name="musical_advisor",
-                prompt_file="src/prompts/MUSICAL_ADVISOR_PROMPT.md",
-                description=(
-                    "Agent specialized in any musical aspect. "
-                    "Can provide comprehensive musical guidance about tracks composition, drum patterns, chord progressions, and more."
-                ),
-            ),
-        )
-    ]

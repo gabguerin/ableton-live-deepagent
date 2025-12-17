@@ -1,37 +1,29 @@
-"""Dynamic advisor agents module using registry pattern.
-
-This module provides a registry-based system for managing and creating
-specialized advisor subagents dynamically.
-"""
+"""Composer Agent Creation Module."""
 
 import os
 
 from deepagents import CompiledSubAgent, SubAgent
-from pydantic import BaseModel
+
+from src.settings import SETTINGS
+
+COMPOSER_PROMPT_PATH = "src/prompts/COMPOSER.md"
 
 
-class ComposerInfo(BaseModel):
-    """Composer agent configuration model."""
-
-    name: str
-    prompt_file: str
-    description: str
-
-
-async def create_composer(
-    composer_info: ComposerInfo,
-) -> CompiledSubAgent | SubAgent:
+async def create_composer() -> CompiledSubAgent | SubAgent:
     """Create a composer agent from its configuration."""
-    if not os.path.exists(composer_info.prompt_file):
-        raise FileNotFoundError(f"Prompt file not found: {composer_info.prompt_file}")
+    if not os.path.exists(COMPOSER_PROMPT_PATH):
+        raise FileNotFoundError("Prompt file not found.")
 
-    with open(composer_info.prompt_file, "r") as f:
+    with open(COMPOSER_PROMPT_PATH, "r") as f:
         system_prompt = f.read()
 
     return {
-        "name": composer_info.name,
-        "description": composer_info.description,
+        "name": "composer",
+        "description": (
+            "Agent specialized in any musical aspect. "
+            "Can provide comprehensive musical guidance about tracks composition, drum patterns, chord progressions, and more."
+        ),
         "system_prompt": system_prompt,
         "tools": [],
-        "model": "gpt-5-nano",
+        "model": SETTINGS.composer_model,
     }

@@ -46,8 +46,7 @@ async def on_message(message: cl.Message):
         answer_message = cl.Message(content="")
         await answer_message.send()
 
-        todo_text = cl.Text(name="📋 Todo list", content="Creating plan...")
-        todo_list = cl.Message(content="", elements=[todo_text])
+        todo_list = cl.Message(content="", elements=[])
         await todo_list.send()
         async for event_type, event_value in producer_agent.astream(
             {"messages": [HumanMessage(content=message.content)]},
