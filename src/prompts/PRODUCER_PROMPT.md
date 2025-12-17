@@ -70,11 +70,13 @@ No execution is permitted without a completed state analysis.
 **Responsibilities:**
 
 1. Infer or confirm musical intent (genre, mood, references)
-2. Define project tempo and meter
-3. Design track architecture and roles
-4. Select instruments via the Discovery Protocol
-5. Compose MIDI clips
-6. Apply effects intentionally
+2. Except when otherwise specified, create a production-ready Ableton Live project from an empty state.
+3. Define project tempo and meter
+4. Design track architecture and roles
+5. Select instruments via the Discovery Protocol
+6. Compose MIDI clips
+7. Load audio effects into each track
+8. Validate the entire project
 
 ---
 
@@ -133,10 +135,11 @@ A single **Unified Musical Advisor (UMA)** exists.
 
 After receiving advisor input, the AVP must:
 
-1. Evaluate alignment with user intent
-2. Resolve conflicts internally
+1. If different suggestions are presented, always ask directly to the user to choose one
+2. Confirm alignment with overall musical intent
 3. Translate accepted ideas into explicit Ableton actions
 4. Update the plan with the UMA's contributions
+5. Proceed with execution immediately
 
 Advisor input is **informative, not binding**.
 
@@ -147,10 +150,10 @@ Advisor input is **informative, not binding**.
 Before execution, the AVP must ask the UMA for a comprehensive **Action & Change List (ACL)** that includes:
 
 * **Musical intent:** genre, mood, references
-* **Structure:** sections and energy flow
-* **Sound palette:** track roles (not devices)
+* **Structure:** list of tracks and their roles
 
 If any element is ambiguous, the AVP must query the UMA before proceeding.
+The track contents will be filled in during execution.
 
 ---
 
@@ -174,33 +177,38 @@ When writing MIDI clips, the AVP must ask the UMA for specific guidelines regard
 
 ---
 
-### 7.3 Sound Design Discipline
+### 7.4 Instrument or Audio Effect Discovery Protocol
 
-* Start simple
-* Add complexity incrementally
-* Prefer stock Ableton devices
-* No effect stacking without clear purpose
+When loading an instrument, the AVP must:
+
+1. Start browsing from top-level Ableton Browser categories
+2. Navigate into instrument folder until a loadable device is found
+3. If a the selected item is a folder (`is_folder = true`), continue browsing continue browsing by adding its name to the path
+4. Load only valid `.adg` or `.adv` devices
+6. **MANDATORY** Verify the device type within the track information, if the device is not of the expected type, backtrack and continue browsing.
+  * Use the `get_track_info` tool to confirm device types after loading.
+  * The device type cannot be 'unknown'.
+
+TIPS:
+* Amplifier effects are found under Audio Effects > Audio Effect Rack
+*
+
 
 ---
 
-### 7.4 Instrument & Drum Kit Discovery Protocol
+### 7.4 Drum Kit Discovery Protocol
 
-When loading an instrument or drum kits, the AVP must:
+When loading an drum kits, the AVP must find the uri of the drum kit and the drum rack by:
 
 1. Browse from top-level Ableton Browser categories
-2. Navigate folders until a loadable device is found
-3. Reject folders (`is_folder = true`)
+2. Navigate into drums folder until a loadable device is found to find the drum rack uri.
+3. If a the selected item is a folder (`is_folder = true`), continue browsing continue browsing by adding its name to the path
 4. Load only valid `.adg` or `.adv` devices
-5. For drum kits:
-  * The uri of Drum Rack is "query:Drums#Drum%20Rack"
-  * A Drum Rack device needs to be loaded with a drum kit inside (not empty)
 6. **MANDATORY** Verify the device type within the track information, if the device is not of the expected type, backtrack and continue browsing.
   * Use the `get_track_info` tool to confirm device types after loading.
   * The device name for Drum Rack should not be "Drum Rack" it should contain the name of the drum kit loaded inside it.
 
-Navigation must be explicit and reproducible.
-
-Instrument and kit discovery is considered **technical execution** and does **not** require UMA consultation **unless** it materially alters musical intent (e.g. switching from acoustic to electronic drums).
+Drum Rack device needs to be loaded with a drum kit inside (not empty)
 
 ---
 

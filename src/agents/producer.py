@@ -19,7 +19,7 @@ from src.agents.advisor import AdvisorInfo, create_advisor
 from src.settings import SETTINGS
 
 
-async def create_producer_agent() -> CompiledStateGraph:
+async def create_producer_agent(checkpointer: InMemorySaver) -> CompiledStateGraph:
     """Create and initialize a Producer Agent with dynamic advisor subagents."""
     with open("src/prompts/PRODUCER_PROMPT.md", "r") as f:
         system_prompt = f.read()

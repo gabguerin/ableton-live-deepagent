@@ -5,11 +5,11 @@ the multi-agent system (Router, Producer, Assistant) to provide an intelligent
 music production assistant.
 """
 
-import os
 import uuid
 
 import chainlit as cl
 from langchain.messages import AIMessageChunk, HumanMessage
+from langgraph.checkpoint.memory import InMemorySaver
 from loguru import logger
 
 from src.agents.producer import create_producer_agent
@@ -21,7 +21,8 @@ STATUS_ICONS = {
     "failed": "❌",
 }
 
-os.environ["THREAD_ID"] = uuid.uuid4().hex
+THREAD_ID = uuid.uuid4().hex
+checkpointer = InMemorySaver()
 
 
 @cl.on_chat_start
@@ -33,21 +34,20 @@ async def on_chat_start():
 
     await cl.Message(content=welcome_message).send()
 
-    logger.info(f"Started new chat session with THREAD_ID: {os.environ['THREAD_ID']}")
-
 
 @cl.on_message
 async def on_message(message: cl.Message):
     """Handle incoming user messages."""
-    producer_agent = await create_producer_agent()
-    logger.info(f"Started new chat session with THREAD_ID: {os.environ['THREAD_ID']}")
+    logger.info(f"Started new chat session with THREAD_ID: {THREAD_ID}")
+
+    producer_agent = await create_producer_agent(checkpointer=checkpointer)
 
     with cl.Step(name="AbletonMCP", type="run", language="json") as tool_steps:
         answer_message = cl.Message(content="")
         await answer_message.send()
         async for event_type, event_value in producer_agent.astream(
             {"messages": [HumanMessage(content=message.content)]},
-            config={"configurable": {"thread_id": os.environ["THREAD_ID"]}},
+            config={"configurable": {"thread_id": THREAD_ID}},
             stream_mode=["updates", "messages"],
         ):
             if event_type == "messages":
@@ -84,5 +84,15 @@ async def on_message(message: cl.Message):
                             await tool_steps.stream_token(f'"{last_msg.name}":\n')
                             if last_msg.content:
                                 await tool_steps.stream_token(last_msg.content + "\n")
+
+                    case "model":
+                        if update.get("tool_calls"):
+                            await tool_steps.stream_token('"tool_calls":\n')
+                            for call in update["tool_calls"]:
+                                tool_name = call.get("tool_name", "unknown_tool")
+                                tool_args = call.get("tool_args", {})
+                                await tool_steps.stream_token(
+                                    f"{tool_name}: {tool_args}\n"
+                                )
 
                 await tool_steps.update()
