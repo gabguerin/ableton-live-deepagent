@@ -45,6 +45,10 @@ async def on_message(message: cl.Message):
     with cl.Step(name="AbletonMCP", type="run", language="json") as tool_steps:
         answer_message = cl.Message(content="")
         await answer_message.send()
+
+        todo_text = cl.Text(name="📋 Todo list", content="Creating plan...")
+        todo_list = cl.Message(content="", elements=[todo_text])
+        await todo_list.send()
         async for event_type, event_value in producer_agent.astream(
             {"messages": [HumanMessage(content=message.content)]},
             config={"configurable": {"thread_id": THREAD_ID}},
@@ -69,30 +73,25 @@ async def on_message(message: cl.Message):
                 match node_name:
                     case "tools":
                         if "todos" in update and update.get("todos"):
-                            await tool_steps.stream_token('"todos":\n')
+                            todo_content = ""
                             for todo in update["todos"]:
                                 status_icon = STATUS_ICONS[
                                     todo.get("status", "pending")
                                 ]
                                 content = todo.get("content", "No description")
-                                await tool_steps.stream_token(
-                                    f"{status_icon} {content}\n"
-                                )
+                                todo_content += f"{status_icon} {content}\n"
+
+                            await todo_list.remove()
+                            todo_text = cl.Text(
+                                name="📋 Todo list", content=todo_content
+                            )
+                            todo_list = cl.Message(content="", elements=[todo_text])
+                            await todo_list.send()
 
                         if "messages" in update and update.get("messages"):
                             last_msg = update["messages"][-1]
                             await tool_steps.stream_token(f'"{last_msg.name}":\n')
                             if last_msg.content:
                                 await tool_steps.stream_token(last_msg.content + "\n")
-
-                    case "model":
-                        if update.get("tool_calls"):
-                            await tool_steps.stream_token('"tool_calls":\n')
-                            for call in update["tool_calls"]:
-                                tool_name = call.get("tool_name", "unknown_tool")
-                                tool_args = call.get("tool_args", {})
-                                await tool_steps.stream_token(
-                                    f"{tool_name}: {tool_args}\n"
-                                )
 
                 await tool_steps.update()

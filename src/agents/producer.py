@@ -15,7 +15,7 @@ from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.graph.state import CompiledStateGraph
 
 from src.ableton_tools import load_ableton_tools
-from src.agents.advisor import AdvisorInfo, create_advisor
+from src.agents.composer import ComposerInfo, create_composer
 from src.settings import SETTINGS
 
 
@@ -26,34 +26,28 @@ async def create_producer_agent(checkpointer: InMemorySaver) -> CompiledStateGra
 
     tools = await load_ableton_tools()
 
-    advisors = await _create_advisors()
+    advisors = await _create_subagents()
 
     return create_deep_agent(
         model=SETTINGS.model,
         system_prompt=system_prompt,
         tools=tools,
         subagents=advisors,
-        checkpointer=InMemorySaver(),
+        checkpointer=checkpointer,
     )
 
 
-async def _create_advisors() -> list[CompiledSubAgent | SubAgent]:
-    advisors = [
-        AdvisorInfo(
-            name="musical_advisor",
-            prompt_file="src/prompts/MUSICAL_ADVISOR_PROMPT.md",
-            description=(
-                "Agent specialized in any musical aspect. "
-                "Can provide comprehensive musical guidance about tracks composition, drum patterns, chord progressions, and more."
+async def _create_subagents() -> list[CompiledSubAgent | SubAgent]:
+    """Create dynamic subagents for the Producer Agent."""
+    return [
+        await create_composer(
+            composer_info=ComposerInfo(
+                name="musical_advisor",
+                prompt_file="src/prompts/MUSICAL_ADVISOR_PROMPT.md",
+                description=(
+                    "Agent specialized in any musical aspect. "
+                    "Can provide comprehensive musical guidance about tracks composition, drum patterns, chord progressions, and more."
+                ),
             ),
-        ),
-    ]
-
-    music_band = []
-    for advisor_config in advisors:
-        agent = await create_advisor(
-            advisor_info=advisor_config,
         )
-        music_band.append(agent)
-
-    return music_band
+    ]
